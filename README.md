@@ -2,93 +2,98 @@
 
 # AsyncCommunication
 
-This project was generated using [Nx](https://nx.dev).
+## Stack
+1. [Nest.js](https://nestjs.com/) - node.js backend agnostic wrapper.
+1. [MongoDB](https://www.mongodb.com/) - NoSQL db, mongoose for schemas.
+1. [Redis](https://redis.io/) - cache key/value based db and more BE solutions.
+1. [Bull](https://github.com/OptimalBits/bull) - Redis based queue manager.
+1. [NX monorepo](https://nx.dev/) - managing monorepo and node dependencies.
+1. [Solid](https://www.solidjs.com/) - ui framework
+1. [Tailwindui](https://tailwindui.com/) - CSS builder
+1. [Docker](https://www.docker.com/) - local container builder/runner
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+# Architecture
 
-🔎 **Smart, Fast and Extensible Build System**
+## Cloud
+The diagram for cloud architecture can be found in diagrams folder.
 
-## Adding capabilities to your workspace
+Queue based on redis, alternatives GCP PubSub.
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+Cache based on nestjs ioredis used in the consumer, alternatives MemoryCache.
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+TBD: Alternative, DB solution for similar requests issue - index all 4 fields and use get by the data sent in the post.
 
-Below are our core plugins:
+![](./diagrams/cloud-arch.png)
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
+## Project
+The project is built on top on nx monorepo, which provides very cool project management tools.
+One of these tools is the command ```npx nx dep-graph```, which will provide interactive browser tab with much more information over the provided image.
 
-There are also many [community plugins](https://nx.dev/community) you could add.
+From the image we can see that we have 3 main projects: client, worker and api - represent our microservices. The applications/projects are reusing code from shared local libs.
+The most interesting package is predictions lib, being shared by all the services. It includes:
+1. Mongodb Schema for projections api.
+2. Projections mongoose actions service. 
+3. DTO related to projections api's.
 
-## Generate an application
+Rest of the libs are related to nestjs boilerplate like logger, filtering, swagger and env module.
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
-
-> You can use any of the plugins above to generate applications as well.
-
-When using Nx, you can create multiple applications and libraries in the same workspace.
-
-## Generate a library
-
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
-
-> You can also use any of the plugins above to generate libraries as well.
-
-Libraries are shareable across libraries and applications. They can be imported from `@async-communication/mylib`.
-
-## Development server
-
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
-
-## Build
-
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
-
-Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Running end-to-end tests
-
-Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
-
-## Understand your workspace
-
-Run `nx graph` to see a diagram of the dependencies of your projects.
-
-## Further help
-
-Visit the [Nx Documentation](https://nx.dev) to learn more.
+![](./diagrams/Untitled%203.png)
 
 
 
-## ☁ Nx Cloud
 
-### Distributed Computation Caching & Distributed Task Execution
+# Local env
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
+Run Redis and MongoDB locally:
 
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
+```
+docker-compose up redis db
+```
 
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
+Run the services in divided windows - suggested for clearer logs:
+```
+npx nx run client:serve
+npx nx run worker:serve
+npx nx run api:serve
+```
+Or, all at once in single terminal
+```
+npx nx run-many --target=serve --parallel --all --maxParallel=3
+```
 
-Visit [Nx Cloud](https://nx.app/) to learn more.
+
+
+# Docker env
+Build the projects (webpack)
+```
+npx nx run-many --target=build --parallel --all --maxParallel=3
+```
+
+Build docker images:
+```
+npx nx run-many --target=docker --parallel --all --maxParallel=3
+```
+Or
+```
+docker-compose build --parallel --force-rm
+```
+Run the services: redis, mongo, api and worker - front-end is not included in docker-compose
+```
+docker-compose up
+```
+Run dev env for front end if needed - swagger as alternative.
+```
+npx nx run client:serve
+```
+
+## local ports 
+Port allocations are the same in dev env and in docker.
+
+client -  http://localhost:3000 - single page with form for post and table for get.
+
+worker -  http://localhost:3334 - nothing to see, async process - service only
+
+api -  http://localhost:3333/api - swagger ui
+
+## extra urls
+bull queue dashboard - http://localhost:3333/admin/queues

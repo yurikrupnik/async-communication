@@ -14,7 +14,19 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "esModuleInterop": true,
+    "paths": {
+      "@async-communication/backend-envs": ["libs/backend-envs/src/index.ts"],
+      "@async-communication/nest-filters": ["libs/nest-filters/src/index.ts"],
+      "@async-communication/nest-health": ["libs/nest-health/src/index.ts"],
+      "@async-communication/nest-logger": ["libs/nest-logger/src/index.ts"],
+      "@async-communication/nest-swgger-docs": [
+        "libs/nest-swgger-docs/src/index.ts"
+      ],
+      "@async-communication/predictions": [
+        "libs/predictions/src/index.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

@@ -1,0 +1,23 @@
+{
+  "root": "libs/nest-swgger-docs",
+  "sourceRoot": "libs/nest-swgger-docs/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/nest-swgger-docs/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/nest-swgger-docs"],
+      "options": {
+        "jestConfig": "libs/nest-swgger-docs/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

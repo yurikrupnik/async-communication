@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+
+  api:
+    image: yurikrupnik/prediction-producer-service
+    build:
+      context: apps/api
+      dockerfile: Dockerfile
+    container_name: prediction-producer-service
+    environment:
+      - MONGO_URI=mongodb://db/mussia12
+      - PORT=3333
+      - REDIS_URI=redis://redis:6379
+      - REDIS_HOST=redis
+    ports:
+      - 3333:3333
+    depends_on:
+      - redis
+  worker:
+    image: yurikrupnik/prediction-consumer-worker
+    build:
+      context: apps/worker
+      dockerfile: Dockerfile
+    container_name: prediction-consumer-worker
+    environment:
+      - MONGO_URI=mongodb://db/mussia12
+      - PORT=3334
+      - REDIS_URI=redis://redis:6379
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+  db:
+    image: mongo
+    ports:
+      - 27017:27017
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+

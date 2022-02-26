@@ -1,6 +1,15 @@
 {
   "version": 2,
   "projects": {
-    "api": "apps/api"
+    "api": "apps/api",
+    "backend-envs": "libs/backend-envs",
+    "client": "apps/client",
+    "client-e2e": "apps/client-e2e",
+    "nest-filters": "libs/nest-filters",
+    "nest-health": "libs/nest-health",
+    "nest-logger": "libs/nest-logger",
+    "nest-swgger-docs": "libs/nest-swgger-docs",
+    "predictions": "libs/predictions",
+    "worker": "apps/worker"
   }
 }
